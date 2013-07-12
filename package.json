@@ -1,0 +1,19 @@
+{
+  "name": "abif",
+  "version": "0.0.1",
+  "description": "An ABIF parser",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/imlucas/node-abif.git"
+  },
+  "keywords": [
+    "bioinformatics",
+  ],
+  "author": "Lucas Hrabovsky <hrabovsky.lucas@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/imlucas/node-abif/issues"
+  }
+}
