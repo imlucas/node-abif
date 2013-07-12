@@ -9,7 +9,7 @@
     "url": "git://github.com/imlucas/node-abif.git"
   },
   "keywords": [
-    "bioinformatics",
+    "bioinformatics"
   ],
   "author": "Lucas Hrabovsky <hrabovsky.lucas@gmail.com>",
   "license": "MIT",
