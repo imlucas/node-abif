@@ -16,13 +16,13 @@ var ABIF_TYPES = {
     19: 'cString'
 };
 
-module.exports = function(buf){
+module.exports = function (buf) {
     return new Reader(buf);
 };
 
 module.exports.Reader = Reader;
 
-function Reader(buf){
+function Reader (buf) {
     this.buf = buf;
     this.pos = 0;
     this.type = this.readNextString(4);
@@ -32,37 +32,37 @@ function Reader(buf){
     this.seek(dir.dataoffset);
 
     this.entries = [];
-    for(var i =0; i<= dir.numelements -1; i++){
+    for (var i = 0; i <= dir.numelements - 1; i++) {
         var e = new DirEntry(this);
         this.entries.push(e);
     }
 }
-Reader.prototype.showEntries = function(){
-    this.entries.map(function(entry){
+Reader.prototype.showEntries = function () {
+    this.entries.map(function (entry) {
         console.log(entry.name);
     });
 };
 
-Reader.prototype.getData = function(name, num){
-    if(num === undefined){
+Reader.prototype.getData = function (name, num) {
+    if (num === undefined) {
         num = 1;
     }
     var entry = this.getEntry(name, num);
-    if(!entry){
+    if (!entry) {
         // throw new Error('Entry ' + name + ' (' +num + ')  not found.');
         return undefined;
     }
     this.seek(entry.mydataoffset);
-    data = this.readData(entry.elementtype, entry.numelements);
+    var data = this.readData(entry.elementtype, entry.numelements);
     return data.length === 1 ? data[0] : data;
 };
 
 
-Reader.prototype.getEntry = function(name, num){
+Reader.prototype.getEntry = function (name, num) {
     var entry;
 
-    this.entries.some(function(e){
-        if(e.name === name && e.number === num){
+    this.entries.some(function (e) {
+        if (e.name === name && e.number === num) {
             entry = e;
             return true;
         }
@@ -70,7 +70,7 @@ Reader.prototype.getEntry = function(name, num){
     return entry;
 };
 
-Reader.prototype.readData = function(type, num){
+Reader.prototype.readData = function (type, num) {
     var m = {
         1: 'Byte',
         3: 'UnsignedInt',
@@ -84,90 +84,90 @@ Reader.prototype.readData = function(type, num){
         13: 'Bool'
     };
 
-    if(m[type]){
+    if (m[type]) {
         return this._loop(m[type], num);
     }
-    else if(type === 2){
+    else if (type === 2) {
         return this.readNextString(num);
     }
-    else if(type === 18){
+    else if (type === 18) {
         return this.readNextpString(num);
     }
-    else if(type === 19){
+    else if (type === 19) {
         return this.readNextcString(num);
     }
     return this[m[type]](num);
 };
 
-Reader.prototype._loop = function(type, num){
+Reader.prototype._loop = function (type, num) {
     var buf = [],
         method = 'readNext' + type;
 
-    for(var i=0; i < num; i++){
+    for (var i = 0; i < num; i++) {
         buf.push(this[method]());
     }
     return buf;
 };
 
-Reader.prototype.readNextShort = function(){
+Reader.prototype.readNextShort = function () {
     var v = this.buf.readInt16BE(this.pos);
     this.pos += 2;
     return v;
 };
-Reader.prototype.readNextInt = function(){
+Reader.prototype.readNextInt = function () {
     var v = this.buf.readInt32BE(this.pos);
     this.pos += 4;
     return v;
 };
 
-Reader.prototype.readNextChar = function(){
-    var v = this.buf.toString('ascii', this.pos, this.pos+1);
+Reader.prototype.readNextChar = function () {
+    var v = this.buf.toString('ascii', this.pos, this.pos + 1);
     this.pos += 1;
     return v;
 };
 
-Reader.prototype.readNextByte = function(){
+Reader.prototype.readNextByte = function () {
     var v = this.buf.readUInt8(this.pos);
     this.pos += 1;
     return v;
 };
 
-Reader.prototype.readNextUnsignedInt = function(){
+Reader.prototype.readNextUnsignedInt = function () {
     var v = this.buf.readUInt32BE(this.pos);
     this.pos += 4;
     return v;
 };
 
-Reader.prototype.readNextLong = function(){
+Reader.prototype.readNextLong = function () {
     var v = this.buf.readInt32BE(this.pos);
     this.pos += 4;
     return v;
 };
 
-Reader.prototype.readNextFloat = function(){
+Reader.prototype.readNextFloat = function () {
     var v = this.buf.readFloatBE(this.pos);
     this.pos += 4;
     return v;
 };
 
 
-Reader.prototype.readNextDouble = function(){
+Reader.prototype.readNextDouble = function () {
     var v = this.buf.readDoubleBE(this.pos);
     this.pos += 8;
     return v;
 };
 
-Reader.prototype.readNextBool = function(){
+Reader.prototype.readNextBool = function () {
     return this.readNextByte() === 1;
 };
 
-Reader.prototype.readNextDate = function(){
+Reader.prototype.readNextDate = function () {
     var d = new Date();
     var y = this.readNextShort();
     var m = this.readNextByte();
     var day = this.readNextByte();
 
-    console.log(y. m, day);
+    console.log(y.m, day);
     d.setYear(y);
     d.setMonth(m);
     d.setDate(day);
@@ -175,7 +175,7 @@ Reader.prototype.readNextDate = function(){
 };
 
 
-Reader.prototype.readNextTime = function(){
+Reader.prototype.readNextTime = function () {
     var d = new Date();
     d.setHours(this.readNextByte());
     d.setMinutes(this.readNextByte());
@@ -184,7 +184,7 @@ Reader.prototype.readNextTime = function(){
     return d;
 };
 
-Reader.prototype.readNextThumb = function(){
+Reader.prototype.readNextThumb = function () {
     return [
         this.readNextLong(),
         this.readNextLong(),
@@ -193,24 +193,24 @@ Reader.prototype.readNextThumb = function(){
     ];
 };
 
-Reader.prototype.readNextString = function(size){
+Reader.prototype.readNextString = function (size) {
     var chars = [];
-    for(var i = 0; i <= size -1; i++){
+    for (var i = 0; i <= size - 1; i++) {
         chars.push(this.readNextChar());
     }
     return chars.join('');
 };
 
-Reader.prototype.readNextpString = function(){
+Reader.prototype.readNextpString = function () {
     return this.readNextString(this.readNextByte());
 };
 
-Reader.prototype.readNextcString = function(){
+Reader.prototype.readNextcString = function () {
     var chars = [],
         c;
-    while(true){
+    while (true) {
         c = this.readNextChar();
-        if(c.charAt(0) === 0){
+        if (c.charAt(0) === 0) {
             return chars.join('');
         }
         else {
@@ -219,15 +219,15 @@ Reader.prototype.readNextcString = function(){
     }
 };
 
-Reader.prototype.tell = function(){
+Reader.prototype.tell = function () {
     return this.pos;
 };
 
-Reader.prototype.seek = function(pos){
+Reader.prototype.seek = function (pos) {
     this.pos = pos;
 };
 
-function DirEntry(buf){
+function DirEntry (buf) {
     this.name = buf.readNextString(4);
     this.number = buf.readNextInt();
 
@@ -245,35 +245,35 @@ function DirEntry(buf){
 
 // http://cpansearch.perl.org/src/VITA/Bio-Trace-ABIF-1.05/lib/Bio/Trace/ABIF.pm
 
-Read.prototype.getAnalyzedDataForChannel = function(channel){
-    if(channel === 5){
+Reader.prototype.getAnalyzedDataForChannel = function (channel) {
+    if (channel === 5) {
         channel = 205;
     }
     else {
         channel += 8;
     }
-    if (channel < 9 || (channel > 12 && channel!= 205)) {
+    if (channel < 9 || (channel > 12 && channel != 205)) {
         return null;
     }
     return this.getEntry('DATA', channel);
 };
 
-Read.protoype.getBaseOrder = function(){
+Reader.prototype.getBaseOrder = function () {
     return this.getData('FWO_').split('');
 };
 
-Read.prototype.getChannel = function(base){
+Reader.prototype.getChannel = function (base) {
     base = base.toUpperCase();
     var order = this.getBaseOrder();
-    for(var i = 0; i <= order.length; i++){
-        if(order[i] === base){
+    for (var i = 0; i <= order.length; i++) {
+        if (order[i] === base) {
             return i + 1;
         }
     }
     return undefined;
 };
 
-Reader.prototype.getPeaks = function(){
+Reader.prototype.getPeaks = function () {
     // sub peaks {
     //     my ($self, $n) = @_;
     //     my $k = '_PEAK' . $n;
@@ -308,7 +308,7 @@ Reader.prototype.getPeaks = function(){
     // }
 };
 
-Reader.prototype.getRawDataForChannel = function(channel){
+Reader.prototype.getRawDataForChannel = function (channel) {
     // sub  raw_data_for_channel {
     //     my ($self, $channel_number) = @_;
     //     if ($channel_number == 5) {
@@ -329,7 +329,7 @@ Reader.prototype.getRawDataForChannel = function(channel){
     // }
 };
 
-Reader.prototype.getRawTrace = function(base){
+Reader.prototype.getRawTrace = function (base) {
     // sub raw_trace {
     //     my ($self, $base) = @_;
     //     my %ob = ();
@@ -340,7 +340,7 @@ Reader.prototype.getRawTrace = function(base){
     // }
 };
 
-Reader.prototype.getTrace = function(base){
+Reader.prototype.getTrace = function (base) {
     // sub trace {
     //     my ($self, $base) = @_;
     //     my %ob = ();
@@ -482,19 +482,19 @@ var accessors = {
     'well_id': 'TUBE'
 };
 
-Object.keys(accessors).map(function(accessor){
-    var r = /[-_]([a-z])/g;
-    var name = accessor.replace(regexp, function(match, c){
+Object.keys(accessors).map(function (accessor) {
+    var regexp = /[-_]([a-z])/g;
+    var name = accessor.replace(regexp, function (match, c) {
         return c.toUpperCase();
     });
-    name = method.charAt(0).toUpperCase() + method.substring(1);
+    name = name.charAt(0).toUpperCase() + name.substring(1);
 
     var args = accessors[accessor];
-    if(!Array.isArray(args)){
+    if (!Array.isArray(args)) {
         args = [args];
     }
 
-    Reader.prototype['get' + name] = function(){
+    Reader.prototype['get' + name] = function () {
         return this.getData.apply(this, args);
     };
 
